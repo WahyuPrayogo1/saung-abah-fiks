@@ -1,0 +1,77 @@
+/* Font dan Reset */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #064422; /* Krem lembut */
+    color: #2E7D32; /* Hijau tua */
+}
+
+/* Header */
+.header {
+    background-color: #2E7D32;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Hero Section */
+.hero {
+    background-image: url('https://source.unsplash.com/1600x900/?restaurant,nature');
+    background-size: cover;
+    background-position: center;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Reservasi Section */
+.reservation {
+    text-align: center;
+    padding: 50px;
+}
+
+.reservation h2 {
+    font-size: 28px;
+    color: #2E7D32;
+}
+
+.reservation p {
+    font-size: 18px;
+    color: #444;
+}
+
+/* Tombol Reservasi */
+.reserve-btn {
+    background-color: #2E7D32;
+    color: white;
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.reserve-btn:hover {
+    background-color: #1B5E20;
+    transform: scale(1.05);
+}
+
+/* Footer */
+.footer {
+    background-color: #2E7D32;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 50px;
+}

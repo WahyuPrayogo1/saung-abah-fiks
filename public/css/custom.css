@@ -1,0 +1,14 @@
+body {
+    background: url("../images/background.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
+}
+
+.container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background: rgba(51, 51, 51, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
