@@ -3,9 +3,10 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MakananController;
-use App\Http\Controllers\MinumanController;
+use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\MejaController;
 
+use App\Http\Controllers\PemesananController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,7 @@ use App\Http\Controllers\MinumanController;
 */
 
 Route::get('/', function () {
-    return view('welcome'); 
+    return view('welcome');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('/dashboard');
@@ -32,10 +33,19 @@ Route::get('/reservasi', function () {
     return view('reservasi');
 })->name('reservasi');
 
+Route::get('pemesanan/create', [PemesananController::class, 'create'])->name('pemesanans.create');
+Route::post('/pemesanans', [PemesananController::class, 'store'])->name('pemesanans.store');
+
+
 Route::middleware('auth')->group(function () {
 
-    Route::resource('makanan', MakananController::class);
-    Route::resource('minuman', MinumanController::class);
+    Route::resource('produk', ProdukController::class);
+    Route::resource('meja', MejaController::class);
+
+    Route::get('pemesanan/table', [PemesananController::class, 'index'])->name('pemesanans.table');
+    Route::get('pemesanan/{id}/edit', [PemesananController::class, 'edit'])->name('pemesanans.edit');
+    Route::put('pemesanan/{id}', [PemesananController::class, 'update'])->name('pemesanans.update');
+    Route::delete('pemesanan/{id}', [PemesananController::class, 'destroy'])->name('pemesanans.destroy');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

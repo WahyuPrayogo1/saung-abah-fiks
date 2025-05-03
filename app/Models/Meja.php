@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Meja extends Model
 {
     use HasFactory;
+    protected $fillable = ['nama', 'is_available'];
+
 }

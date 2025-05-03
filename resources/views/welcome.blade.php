@@ -67,13 +67,9 @@
                                    <li><a href="{{ url('/dashboard') }}" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</a></li>
                               @else
                                    <li><a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</a></li>
-
-                                   @if (Route::has('register'))
-                                        <li><a href="{{ route('register') }}" class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a></li>
-                                   @endif
                               @endauth
                          @endif
-                         <li><a href="{{ route('reservasi') }}" class="section-btn">Reserve a table</a></li>
+                         <li><a href="{{ url('pemesanan/create') }}" class="section-btn">Reserve a table</a></li>
                     </ul>
                </div>
           </div>
@@ -165,7 +161,7 @@
                               <img src="images/team-image1.jpg" class="img-responsive" alt="">
                                    <div class="team-hover">
                                         <div class="team-item">
-                                             <h4>Duis vel lacus id magna mattis vehicula</h4> 
+                                             <h4>Duis vel lacus id magna mattis vehicula</h4>
                                              <ul class="social-icon">
                                                   <li><a href="#" class="fa fa-linkedin-square"></a></li>
                                                   <li><a href="#" class="fa fa-envelope-o"></a></li>
@@ -241,7 +237,7 @@
                                              <p>Restoran Saung Abah menyediakan mushola yang bersih dan nyaman bagi pelanggan yang ingin melaksanakan ibadah.
                                                 Dilengkapi dengan tempat wudhu yang terawat, sehingga memberikan kenyamanan saat beribadah.</p>
                                         </div>
-                                        <div class="menu-price">                                          
+                                        <div class="menu-price">
                                         </div>
                                    </div>
                               </a>
@@ -256,10 +252,10 @@
                                    <div class="menu-info">
                                         <div class="menu-item">
                                              <h3>Ruang Rapat</h3>
-                                             <p>Disediakan ruang rapat yang nyaman dan dilengkapi dengan fasilitas pendukung seperti meja besar dan kursi yang nyaman. 
+                                             <p>Disediakan ruang rapat yang nyaman dan dilengkapi dengan fasilitas pendukung seperti meja besar dan kursi yang nyaman.
                                                 Cocok untuk pertemuan bisnis, acara keluarga, maupun gathering perusahaan.</p>
                                         </div>
-                                        <div class="menu-price">                                         
+                                        <div class="menu-price">
                                         </div>
                                    </div>
                               </a>
@@ -274,10 +270,10 @@
                                    <div class="menu-info">
                                         <div class="menu-item">
                                              <h3>Tempat Parkir</h3>
-                                             <p>Area parkir luas dan aman, tersedia untuk kendaraan roda dua maupun roda empat. Dengan lokasi yang strategis, 
+                                             <p>Area parkir luas dan aman, tersedia untuk kendaraan roda dua maupun roda empat. Dengan lokasi yang strategis,
                                                   pelanggan dapat dengan mudah memarkirkan kendaraannya tanpa khawatir.</p>
                                         </div>
-                                        <div class="menu-price">                                          
+                                        <div class="menu-price">
                                         </div>
                                    </div>
                               </a>
@@ -309,10 +305,10 @@
                                    <div class="menu-info">
                                         <div class="menu-item">
                                              <h3>Saung Makan</h3>
-                                             <p>Menikmati hidangan di saung dengan suasana khas pedesaan yang asri dan sejuk. 
+                                             <p>Menikmati hidangan di saung dengan suasana khas pedesaan yang asri dan sejuk.
                                                 Saung yang nyaman dan luas ini cocok untuk berkumpul bersama keluarga maupun teman sambil menikmati makanan khas Saung Abah.</p>
                                         </div>
-                                        <div class="menu-price">                                         
+                                        <div class="menu-price">
                                         </div>
                                    </div>
                               </a>
@@ -329,7 +325,7 @@
                                              <h3>Big Flat Fried</h3>
                                              <p>Pepper / Crispy</p>
                                         </div>
-                                        <div class="menu-price">                                         
+                                        <div class="menu-price">
                                         </div>
                                    </div>
                               </a>
@@ -348,7 +344,7 @@
                          <div class="section-title wow fadeInUp" data-wow-delay="0.1s">
                               <h2>Kata Mereka</h2>
                          </div>
-                    </div>  
+                    </div>
 
                     <div class="col-md-offset-2 col-md-8 col-sm-12">
                          <div class="owl-carousel owl-theme">
@@ -379,7 +375,7 @@
                     </div>
                </div>
           </div>
-     </section>  
+     </section>
 
      <!-- CONTACT -->
      <section id="contact" data-stellar-background-ratio="0.5">
@@ -389,7 +385,7 @@
                          <div id="google-map">
                               <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.0330029102115!2d106.94042007499617!3d-6.886650393112347!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e684995c9772ee5%3A0xd4e3a53d33f4d066!2sSaung%20Abah!5e0!3m2!1sen!2sid!4v1742438195569!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                          </div>
-                    </div>    
+                    </div>
 
                     <div class="col-md-6 col-sm-12">
                          <div class="col-md-12 col-sm-12">
@@ -402,7 +398,7 @@
                          <form action="#" method="post" class="wow fadeInUp" id="contact-form" role="form" data-wow-delay="0.8s">
                               <!-- IF MAIL SENT SUCCESSFUL  // connect this with custom JS -->
                               <h6 class="text-success">Your message has been sent successfully.</h6>
-                              
+
                               <!-- IF MAIL NOT SENT -->
                               <h6 class="text-danger">E-mail must be valid and message must be longer than 1 character.</h6>
 
@@ -425,7 +421,7 @@
                     </div>
                </div>
           </div>
-     </section>          
+     </section>
 
      <!-- FOOTER -->
      <footer id="footer" data-stellar-background-ratio="0.5">
@@ -476,8 +472,8 @@
                               <li><a href="#" class="fa fa-google"></a></li>
                          </ul>
 
-                         <div class="wow fadeInUp copyright-text" data-wow-delay="0.8s"> 
-                              <p><br>Copyright &copy; 2025 <br>Saung Abah SUKABUMI 
+                         <div class="wow fadeInUp copyright-text" data-wow-delay="0.8s">
+                              <p><br>Copyright &copy; 2025 <br>Saung Abah SUKABUMI
                               </div>
                     </div>
                </div>
