@@ -35,6 +35,8 @@ Route::get('/reservasi', function () {
 
 Route::get('pemesanan/create', [PemesananController::class, 'create'])->name('pemesanans.create');
 Route::post('/pemesanans', [PemesananController::class, 'store'])->name('pemesanans.store');
+// web.php
+Route::get('/scan-meja', [PemesananController::class, 'handleQr'])->name('pemesanan.qr');
 
 
 Route::middleware('auth')->group(function () {

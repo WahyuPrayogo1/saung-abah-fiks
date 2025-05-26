@@ -65,7 +65,7 @@
         }
 
         .product-card:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
@@ -87,8 +87,52 @@
 
         .selected-product {
             border: 2px solid #5c6bc0;
+            background-color: #f0f4ff;
         }
 
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            margin: 0 10px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #5c6bc0;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .selected-products-list {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .selected-product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .remove-product {
+            color: #ff5252;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -99,46 +143,56 @@
                 <h3>Form Pemesanan</h3>
             </div>
             <div class="card-body">
-<!-- resources/views/pemesanan/create.blade.php -->
+                <form action="{{ route('pemesanans.store') }}" method="POST">
+                    @csrf
 
-<form action="{{ route('pemesanans.store') }}" method="POST">
-    @csrf
+                    <!-- Pilih Meja -->
+                    <div class="mb-3">
+                        <label for="meja_id" class="form-label">Meja</label>
+                                    <select class="form-select" name="meja_id" {{ $selectedMejaId ? 'disabled' : '' }}>
+                        @foreach($meja as $item)
+                            <option value="{{ $item->id }}" {{ $selectedMejaId == $item->id ? 'selected' : '' }}>
+                                {{ $item->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if($selectedMejaId)
+                        <input type="hidden" name="meja_id" value="{{ $selectedMejaId }}">
+                    @endif
 
-    <!-- Pilih Meja -->
-    <div class="mb-3">
-        <label for="meja_id" class="form-label">Meja</label>
-        <select name="meja_id" id="meja_id" class="form-select">
-            @foreach($meja as $item)
-                <option value="{{ $item->id }}">{{ $item->nama }}</option>
-            @endforeach
-        </select>
-    </div>
 
-    <!-- Pilih Produk -->
-    <div class="mb-3" id="produk-container">
-        <label for="produk_id" class="form-label">Pilih Produk</label>
-        <div class="row" id="product-list">
-            @foreach($produk as $item)
-                <div class="col-md-4 mb-3">
-                    <div class="card product-card" data-id="{{ $item->id }}" data-harga="{{ $item->harga }}">
-                        <img src="{{ asset('storage/' . $item->foto) }}" class="card-img-top product-image" alt="{{ $item->nama }}">
-                        <div class="card-body">
-                            <h5 class="product-name">{{ $item->nama }}</h5>
-                            <p class="product-price">Rp {{ number_format($item->harga, 0, ',', '.') }}</p>
-                            <!-- Input jumlah yang akan ditampilkan saat produk dipilih -->
-                            <input type="number" name="jumlah[]" class="form-control" min="1" placeholder="Jumlah" data-id="{{ $item->id }}" style="display:none;">
-                            <!-- Hidden input untuk mengirim ID produk yang dipilih -->
-                            <input type="hidden" name="produk_id[]" class="produk_id" value="{{ $item->id }}">
+
+                    </div>
+
+                    <!-- Daftar Produk yang Dipilih -->
+                    <div class="selected-products-list" id="selected-products">
+                        <h5>Produk Dipilih</h5>
+                        <div id="selected-products-container">
+                            <!-- Produk yang dipilih akan muncul di sini -->
+                            <p class="text-muted" id="no-products-message">Belum ada produk dipilih</p>
                         </div>
                     </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
 
-    <button type="submit" class="btn btn-primary w-100">Pesan</button>
-</form>
+                    <!-- Pilih Produk -->
+                    <div class="mb-3" id="produk-container">
+                        <label for="produk_id" class="form-label">Pilih Produk</label>
+                        <div class="row" id="product-list">
+                            @foreach($produk as $item)
+                                <div class="col-md-4 mb-3">
+                                    <div class="card product-card" data-id="{{ $item->id }}" data-harga="{{ $item->harga }}" data-nama="{{ $item->nama }}">
+                                        <img src="{{ asset('storage/' . $item->foto) }}" class="card-img-top product-image" alt="{{ $item->nama }}">
+                                        <div class="card-body">
+                                            <h5 class="product-name">{{ $item->nama }}</h5>
+                                            <p class="product-price">Rp {{ number_format($item->harga, 0, ',', '.') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
 
+                    <button type="submit" class="btn btn-primary w-100">Pesan</button>
+                </form>
             </div>
         </div>
     </div>
@@ -146,48 +200,133 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <script>
-            // Menampilkan SweetAlert jika ada session success
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pemesanan Berhasil!',
-                    text: '{{ session('success') }}',
-                    confirmButtonText: 'OK'
-                });
-            @endif
-        </script>
-
     <script>
-        // Event listener untuk card produk
-        $('.product-card').click(function () {
-            var productId = $(this).data('id');
-            var productPrice = $(this).data('harga');
+        // Menampilkan SweetAlert jika ada session success
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Pemesanan Berhasil!',
+                text: '{{ session('success') }}',
+                confirmButtonText: 'OK'
+            });
+        @endif
 
-            // Menandai produk yang dipilih
-            $('.product-card').removeClass('selected-product');
-            $(this).addClass('selected-product');
+        $(document).ready(function() {
+            let selectedProducts = [];
 
-            // Tampilkan input jumlah produk untuk produk yang dipilih
-            var jumlahInput = $(this).find('input[name="jumlah[]"]');
-            jumlahInput.show().val(1); // Menampilkan input jumlah dengan default 1
-        });
+            // Event listener untuk card produk
+            $('.product-card').click(function() {
+                const productId = $(this).data('id');
+                const productName = $(this).data('nama');
+                const productPrice = $(this).data('harga');
 
-        // Menangani form submission untuk memasukkan produk yang dipilih
-        $('form').submit(function (e) {
-            var selectedProducts = [];
-            // Ambil id produk yang dipilih dan jumlah yang dimasukkan
-            $('.selected-product').each(function() {
-                var productId = $(this).data('id');
-                var jumlah = $(this).find('input[name="jumlah[]"]').val();
-                selectedProducts.push({ id: productId, jumlah: jumlah });
+                // Cek apakah produk sudah dipilih
+                const existingProduct = selectedProducts.find(p => p.id === productId);
+
+                if (existingProduct) {
+                    // Jika sudah ada, tambah jumlah
+                    existingProduct.quantity += 1;
+                } else {
+                    // Jika belum ada, tambahkan ke array
+                    selectedProducts.push({
+                        id: productId,
+                        name: productName,
+                        price: productPrice,
+                        quantity: 1
+                    });
+                }
+
+                updateSelectedProductsUI();
             });
 
-            // Simpan data produk yang dipilih ke dalam input hidden atau kirim data dalam request
-            console.log(selectedProducts);
+            // Fungsi untuk memperbarui tampilan produk yang dipilih
+            function updateSelectedProductsUI() {
+                const container = $('#selected-products-container');
+
+                if (selectedProducts.length === 0) {
+                    container.html('<p class="text-muted">Belum ada produk dipilih</p>');
+                    return;
+                }
+
+                let html = '';
+
+                selectedProducts.forEach((product, index) => {
+                    html += `
+                        <div class="selected-product-item" data-id="${product.id}">
+                            <div>
+                                <strong>${product.name}</strong>
+                                <div>Rp ${product.price.toLocaleString('id-ID')}</div>
+                            </div>
+                            <div class="quantity-control">
+                                <button class="quantity-btn minus-btn" data-index="${index}">-</button>
+                                <input type="number" class="quantity-input" min="1" value="${product.quantity}" data-index="${index}">
+                                <button class="quantity-btn plus-btn" data-index="${index}">+</button>
+                            </div>
+                            <div class="total-price">
+                                Rp ${(product.price * product.quantity).toLocaleString('id-ID')}
+                            </div>
+                            <span class="remove-product" data-index="${index}">&times;</span>
+                        </div>
+                    `;
+                });
+
+                container.html(html);
+
+                // Tambahkan hidden inputs untuk form submission
+                $('form').find('input[name^="produk_id"]').remove();
+                $('form').find('input[name^="jumlah"]').remove();
+
+                selectedProducts.forEach(product => {
+                    $('form').append(`<input type="hidden" name="produk_id[]" value="${product.id}">`);
+                    $('form').append(`<input type="hidden" name="jumlah[]" value="${product.quantity}">`);
+                });
+            }
+
+            // Event delegation untuk tombol plus, minus, dan hapus
+            $(document).on('click', '.plus-btn', function() {
+                const index = $(this).data('index');
+                selectedProducts[index].quantity += 1;
+                updateSelectedProductsUI();
+            });
+
+            $(document).on('click', '.minus-btn', function() {
+                const index = $(this).data('index');
+                if (selectedProducts[index].quantity > 1) {
+                    selectedProducts[index].quantity -= 1;
+                    updateSelectedProductsUI();
+                }
+            });
+
+            $(document).on('change', '.quantity-input', function() {
+                const index = $(this).data('index');
+                const value = parseInt($(this).val());
+
+                if (value >= 1) {
+                    selectedProducts[index].quantity = value;
+                    updateSelectedProductsUI();
+                } else {
+                    $(this).val(selectedProducts[index].quantity);
+                }
+            });
+
+            $(document).on('click', '.remove-product', function() {
+                const index = $(this).data('index');
+                selectedProducts.splice(index, 1);
+                updateSelectedProductsUI();
+            });
+
+            // Validasi form sebelum submit
+            $('form').submit(function(e) {
+                if (selectedProducts.length === 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Pilih setidaknya satu produk!'
+                    });
+                }
+            });
         });
     </script>
-
 </body>
-
 </html>

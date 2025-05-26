@@ -115,7 +115,7 @@
 
                     <div class="text-center p-t-12">
                         <span class="txt1">Login Assistance:</span>
-                        <a class="txt2" href="{{ route('password.request') }}">Lupa password?</a>
+                        <a class="txt2" href="#">Lupa password?</a>
                     </div>
 
                     <div class="text-center p-t-136">

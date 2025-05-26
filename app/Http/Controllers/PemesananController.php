@@ -85,45 +85,63 @@ class PemesananController extends Controller
 
 
 
-    public function create()
+  public function create(Request $request)
     {
         $produk = Produk::all();  // Ambil semua produk
-        $meja = Meja::all();  // Ambil semua meja
-        return view('pemesanan.create', compact('produk', 'meja'));
+        $meja = Meja::all();      // Ambil semua meja
+        $selectedMejaId = $request->query('meja_id'); // Ambil meja_id dari URL jika ada
+
+        return view('pemesanan.create', compact('produk', 'meja', 'selectedMejaId'));
     }
+
 
     public function store(Request $request)
-    {
-        // Simpan pemesanan utama
-        $pemesanans = Pemesanans::create([
-            'meja_id' => $request->meja_id,
-            'waktu_pemesanan' => now(),
-            'total_harga' => 0,  // Akan dihitung nanti
-            'status' => 'pending',
+{
+    // Validasi dasar
+    $request->validate([
+        'meja_id' => 'required|exists:mejas,id',
+        'produk_id' => 'required|array|min:1',
+        'produk_id.*' => 'exists:produks,id',
+        'jumlah' => 'required|array|min:1',
+        'jumlah.*' => 'integer|min:1',
+    ]);
+
+    // Simpan pemesanan utama
+    $pemesanans = Pemesanans::create([
+        'meja_id' => $request->meja_id,
+        'waktu_pemesanan' => now(),
+        'total_harga' => 0, // Akan diupdate setelahnya
+        'status' => 'pending',
+    ]);
+
+    // Hitung total harga dan simpan detail pemesanan
+    $totalHarga = 0;
+
+    foreach ($request->produk_id as $key => $produkId) {
+        $produk = Produk::find($produkId);
+        $jumlah = $request->jumlah[$key] ?? 1;
+
+        // Hindari bug jika produk tidak ditemukan atau jumlah tidak valid
+        if (!$produk || $jumlah < 1) continue;
+
+        $harga = $produk->harga * $jumlah;
+
+        PemesananDetails::create([
+            'pemesanans_id' => $pemesanans->id,
+            'produk_id' => $produkId,
+            'jumlah' => $jumlah,
+            'harga' => $harga,
         ]);
 
-        // Hitung total harga dan simpan detail pemesanan
-        $totalHarga = 0;
-        foreach ($request->produk_id as $key => $produkId) {
-            $produk = Produk::find($produkId);
-            $harga = $produk->harga * $request->jumlah[$key];
-
-            PemesananDetails::create([
-                'pemesanans_id' => $pemesanans->id,
-                'produk_id' => $produkId,
-                'jumlah' => $request->jumlah[$key],
-                'harga' => $harga,
-            ]);
-
-            $totalHarga += $harga;
-        }
-
-        // Update total harga pemesanan
-        $pemesanans->update(['total_harga' => $totalHarga]);
-
-        // Redirect kembali dengan notifikasi SweetAlert
-        return back()->with('success', 'Pemesanan berhasil dibuat!');
+        $totalHarga += $harga;
     }
+
+    // Update total harga pemesanan
+    $pemesanans->update(['total_harga' => $totalHarga]);
+
+    return back()->with('success', 'Pemesanan berhasil dibuat!');
+}
+
 
 
     public function destroy($id)
@@ -141,6 +159,11 @@ class PemesananController extends Controller
         return redirect()->route('pemesanans.table')->with('success', 'Pemesanan berhasil dihapus');
     }
 
+    public function handleQr(Request $request)
+    {
+        $mejaId = $request->meja_id;
+        return redirect()->route('pemesanans.create', ['meja_id' => $mejaId]);
+    }
 
 
 

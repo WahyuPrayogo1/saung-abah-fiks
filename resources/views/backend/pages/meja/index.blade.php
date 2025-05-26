@@ -37,6 +37,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Meja</th>
+                                <th>QRCODE</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -80,6 +81,7 @@
                 searchable: false
             },
             { data: 'nama', name: 'nama' },
+               { data: 'qr_code', name: 'qr_code', orderable: false, searchable: false }, // kolom QR Code
             {
                 data: 'is_available',
                 name: 'is_available',

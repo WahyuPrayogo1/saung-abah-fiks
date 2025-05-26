@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama'); // Nama meja
             $table->boolean('is_available')->default(true); // Status ketersediaan meja
+            $table->string('qr_code')->nullable();
             $table->timestamps();
         });
     }
