@@ -26,6 +26,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Meja</th>
+                                <th>Produk Dipesan</th>
                                 <th>Total Harga</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
@@ -64,20 +65,26 @@
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        return meta.row + 1; // Nomor urut
+                        return meta.row + 1;
                     },
                     orderable: false,
                     searchable: false
                 },
                 {
-                    data: 'meja.nama', // Pastikan relasi 'meja' dimuat di controller
+                    data: 'meja',
                     name: 'meja.nama'
+                },
+                {
+                    data: 'produk',
+                    name: 'produk',
+                    orderable: false,
+                    searchable: false
                 },
                 {
                     data: 'total_harga',
                     name: 'total_harga',
                     render: function (data) {
-                        return formatRupiah(data); // Format harga ke Rp
+                        return formatRupiah(data);
                     }
                 },
                 {
@@ -100,8 +107,16 @@
             text: '{{ session('success') }}',
             showConfirmButton: false,
             timer: 2000
-        }).then(function () {
-            location.reload();
+        });
+        @endif
+
+        @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            showConfirmButton: false,
+            timer: 2000
         });
         @endif
     });

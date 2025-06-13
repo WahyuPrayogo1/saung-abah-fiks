@@ -13,74 +13,104 @@ use Yajra\DataTables\Facades\DataTables;
 
 class PemesananController extends Controller
 {
-    public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            // Ambil data pemesanan yang terbaru
-            $data = Pemesanans::with('meja')->latest()->get();
+public function index(Request $request)
+{
+    if ($request->ajax()) {
+        // Ambil data pemesanan dengan relasi meja dan details.produk
+        $data = Pemesanans::with(['meja', 'details.produk'])->latest()->get();
 
-            // Gunakan DataTables untuk mengolah data
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('meja_id', function($row) {
-                    return $row->meja->nama ?? '-';
-                })
-                ->addColumn('aksi', function($row){
-                    // URL untuk edit
-                    $editUrl = route('pemesanans.edit', $row->id);
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->addColumn('meja', function($row) {
+                return $row->meja->nama ?? '-';
+            })
+            ->addColumn('produk', function($row) {
+                $produkList = [];
+                foreach ($row->details as $detail) {
+                    $produkList[] = $detail->produk->nama . ' (x' . $detail->jumlah . ')';
+                }
+                return implode('<br>', $produkList);
+            })
+            ->addColumn('aksi', function($row){
+                $editUrl = route('pemesanans.edit', $row->id);
+                $deleteForm = '
+                <form action="'.route('pemesanans.destroy', $row->id).'" method="POST" id="delete-form-'.$row->id.'" style="display:inline;">
+                    '.csrf_field().'
+                    '.method_field('DELETE').'
+                    <button type="button" onclick="confirmDelete('.$row->id.')" class="btn btn-danger btn-sm">
+                        Hapus
+                    </button>
+                </form>';
 
-                    // Form delete dengan tombol
-                    $deleteForm = '
-                    <form action="'.route('pemesanans.destroy', $row->id).'" method="POST" id="delete-form-'.$row->id.'" style="display:inline;">
-                        '.csrf_field().'
-                        '.method_field('DELETE').'
-                        <button type="button" onclick="confirmDelete('.$row->id.')" class="btn btn-danger btn-sm">
-                            Hapus
-                        </button>
-                    </form>
-                ';
-
-
-                    // Tombol edit dan delete
-                    return '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Edit</a> '.$deleteForm;
-                })
-                ->rawColumns(['aksi']) // Menampilkan tombol aksi sebagai HTML
-                ->make(true); // Mengembalikan data dalam format JSON untuk DataTables
-        }
-
-        // Tampilkan view dengan DataTables
-        return view('pemesanan.index');
+                return '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Edit</a> '.$deleteForm;
+            })
+            ->rawColumns(['produk', 'aksi'])
+            ->make(true);
     }
 
-    public function edit($id)
-    {
-        // Ambil data pemesanan berdasarkan ID
-        $pemesanan = Pemesanan::findOrFail($id);
+    return view('pemesanan.index');
+}
 
-        // Kirim data pemesanan ke view edit
-        return view('pemesanan.edit', compact('pemesanan'));
+   public function edit($id)
+    {
+        $pemesanan = Pemesanans::with(['meja', 'details.produk'])->findOrFail($id);
+        $mejas = Meja::all();
+        $produks = Produk::all();
+
+        return view('pemesanan.edit', compact('pemesanan', 'mejas', 'produks'));
     }
 
     public function update(Request $request, $id)
     {
-        $pemesanan = Pemesanans::findOrFail($id);
-
-        // Validasi data
         $request->validate([
-            'meja_id' => 'required',
-            'total_harga' => 'required|numeric',
-            'status' => 'required',
+            'meja_id' => 'required|exists:mejas,id',
+            'status' => 'required|in:pending,completed,cancelled',
+            'produk_id' => 'required|array',
+            'produk_id.*' => 'exists:produks,id',
+            'jumlah' => 'required|array',
+            'jumlah.*' => 'integer|min:1'
         ]);
 
-        // Update data pemesanan
-        $pemesanan->update([
-            'meja_id' => $request->meja_id,
-            'total_harga' => $request->total_harga,
-            'status' => $request->status,
-        ]);
+        // Mulai transaction
+        \DB::beginTransaction();
 
-        // Redirect dengan pesan sukses
-        return redirect()->route('pemesanans.table')->with('success', 'Pemesanan berhasil diperbarui');
+        try {
+            $pemesanan = Pemesanans::findOrFail($id);
+            $pemesanan->update([
+                'meja_id' => $request->meja_id,
+                'status' => $request->status
+            ]);
+
+            // Hapus detail lama
+            PemesananDetails::where('pemesanans_id', $id)->delete();
+
+            // Simpan detail baru
+            $total_harga = 0;
+            foreach ($request->produk_id as $key => $produk_id) {
+                $produk = Produk::find($produk_id);
+                $subtotal = $produk->harga * $request->jumlah[$key];
+
+                PemesananDetails::create([
+                    'pemesanans_id' => $pemesanan->id,
+                    'produk_id' => $produk_id,
+                    'jumlah' => $request->jumlah[$key],
+                    'harga' => $subtotal
+                ]);
+
+                $total_harga += $subtotal;
+            }
+
+            // Update total harga
+            $pemesanan->update(['total_harga' => $total_harga]);
+
+            \DB::commit();
+
+            return redirect()->route('pemesanans.table')->with('success', 'Pemesanan berhasil diperbarui');
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return back()->with('error', 'Gagal memperbarui pemesanan: '.$e->getMessage());
+        }
     }
 
 
@@ -146,17 +176,24 @@ class PemesananController extends Controller
 
     public function destroy($id)
     {
-        // Cari data pemesanan berdasarkan ID
         $pemesanan = Pemesanans::findOrFail($id);
 
-        // Hapus data terkait di pemesanan_details
-        PemesananDetails::where('pemesanans_id', $id)->delete();
+        \DB::beginTransaction();
+        try {
+            // Hapus detail terlebih dahulu
+            PemesananDetails::where('pemesanans_id', $id)->delete();
 
-        // Hapus data pemesanan
-        $pemesanan->delete();
+            // Hapus pemesanan
+            $pemesanan->delete();
 
-        // Kembalikan respons sukses
-        return redirect()->route('pemesanans.table')->with('success', 'Pemesanan berhasil dihapus');
+            \DB::commit();
+
+            return redirect()->route('pemesanans.table')->with('success', 'Pemesanan berhasil dihapus');
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return back()->with('error', 'Gagal menghapus pemesanan: '.$e->getMessage());
+        }
     }
 
     public function handleQr(Request $request)
