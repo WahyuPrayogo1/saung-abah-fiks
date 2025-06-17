@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\MejaController;
+use App\Http\Controllers\PaymentController;
 
 use App\Http\Controllers\PemesananController;
 
@@ -37,6 +38,15 @@ Route::get('pemesanan/create', [PemesananController::class, 'create'])->name('pe
 Route::post('/pemesanans', [PemesananController::class, 'store'])->name('pemesanans.store');
 // web.php
 Route::get('/scan-meja', [PemesananController::class, 'handleQr'])->name('pemesanan.qr');
+
+
+    // Route pembayaran
+    Route::get('/payment/{pemesanan_id}/create', [PaymentController::class, 'create'])
+         ->name('payment.create');
+    Route::get('/payment/finish', [PaymentController::class, 'finish'])
+         ->name('payment.finish');
+    Route::post('/payment/notification', [PaymentController::class, 'notification'])
+         ->name('payment.notification');
 
 
 Route::middleware('auth')->group(function () {

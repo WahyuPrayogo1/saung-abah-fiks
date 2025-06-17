@@ -13,6 +13,9 @@ class Pemesanans extends Model
         'waktu_pemesanan',
         'total_harga',
         'status',
+        'pembayaran',
+        'payment_status',
+        'snap_token'
     ];
 
     public function details()

@@ -28,6 +28,7 @@
                                 <th>Nama Meja</th>
                                 <th>Produk Dipesan</th>
                                 <th>Total Harga</th>
+                                <th>Metode Pembayaran</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -88,8 +89,25 @@
                     }
                 },
                 {
+                    data: 'pembayaran',
+                    name: 'pembayaran',
+                    render: function(data) {
+                        return data === 'online' ?
+                            '<span class="badge bg-blue text-blue-fg">Online</span>' :
+                            '<span class="badge bg-cyan text-cyan-fg">Kasir</span>';
+                    }
+                },
+                {
                     data: 'status',
-                    name: 'status'
+                    name: 'status',
+                    render: function(data) {
+                        let badgeClass = 'badge';
+                        if (data === 'completed') badgeClass = 'bg-blue text-blue-fg';
+                        if (data === 'cancelled') badgeClass = 'bg-red text-red-fg';
+                        if (data === 'pending') badgeClass = 'bg-yellow text-yellow-fg';
+
+                        return `<span class="badge ${badgeClass}">${data}</span>`;
+                    }
                 },
                 {
                     data: 'aksi',

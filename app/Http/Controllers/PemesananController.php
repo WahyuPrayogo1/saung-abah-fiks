@@ -125,7 +125,7 @@ public function index(Request $request)
     }
 
 
-    public function store(Request $request)
+public function store(Request $request)
 {
     // Validasi dasar
     $request->validate([
@@ -134,14 +134,16 @@ public function index(Request $request)
         'produk_id.*' => 'exists:produks,id',
         'jumlah' => 'required|array|min:1',
         'jumlah.*' => 'integer|min:1',
+        'pembayaran' => 'required|in:online,kasir',
     ]);
 
     // Simpan pemesanan utama
-    $pemesanans = Pemesanans::create([
+    $pemesanan = Pemesanans::create([
         'meja_id' => $request->meja_id,
         'waktu_pemesanan' => now(),
-        'total_harga' => 0, // Akan diupdate setelahnya
+        'total_harga' => 0,
         'status' => 'pending',
+        'pembayaran' => $request->pembayaran,
     ]);
 
     // Hitung total harga dan simpan detail pemesanan
@@ -151,13 +153,12 @@ public function index(Request $request)
         $produk = Produk::find($produkId);
         $jumlah = $request->jumlah[$key] ?? 1;
 
-        // Hindari bug jika produk tidak ditemukan atau jumlah tidak valid
         if (!$produk || $jumlah < 1) continue;
 
         $harga = $produk->harga * $jumlah;
 
         PemesananDetails::create([
-            'pemesanans_id' => $pemesanans->id,
+            'pemesanans_id' => $pemesanan->id,
             'produk_id' => $produkId,
             'jumlah' => $jumlah,
             'harga' => $harga,
@@ -167,9 +168,21 @@ public function index(Request $request)
     }
 
     // Update total harga pemesanan
-    $pemesanans->update(['total_harga' => $totalHarga]);
+    $pemesanan->update(['total_harga' => $totalHarga]);
 
-    return back()->with('success', 'Pemesanan berhasil dibuat!');
+    if ($request->pembayaran === 'online') {
+        $pemesanan->update([
+            'payment_status' => 'pending',
+            'snap_token' => 'ORDER-' . $pemesanan->id . '-' . time()
+        ]);
+
+        // Redirect ke halaman pembayaran Midtrans
+        return redirect()->route('payment.create', ['pemesanan_id' => $pemesanan->id])
+            ->with('success', 'Pemesanan berhasil dibuat! Silakan lakukan pembayaran.');
+    }
+
+    // Jika pembayaran di kasir
+    return back()->with('success', 'Pemesanan berhasil dibuat! Silakan bayar di kasir setelah selesai.');
 }
 
 

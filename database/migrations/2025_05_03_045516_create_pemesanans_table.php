@@ -16,7 +16,10 @@ return new class extends Migration
             $table->foreignId('meja_id')->constrained('mejas');  // Menyimpan relasi ke tabel meja
             $table->timestamp('waktu_pemesanan')->default(now());  // Waktu pemesanan
             $table->integer('total_harga');  // Total harga untuk semua produk yang dipesan
+            $table->enum('pembayaran', ['online', 'kasir'])->default('kasir');
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+            $table->string('payment_status')->nullable();
+            $table->string('snap_token')->nullable();
             $table->timestamps();
         });
     }
